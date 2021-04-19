@@ -8,7 +8,7 @@ Maxima as a Clojure library
 (require '[clj-maxima :as m])
 (require '[abclj.core :as cl])
 
-(meval "integrate(x*sin(a*x),x)")
+(m/meval "integrate(x*sin(a*x),x)")
 ; ==> returns
 ;#abclj/cl-cons ((MAXIMA::MTIMES MAXIMA::SIMP) ((MAXIMA::MEXPT MAXIMA::SIMP) MAXIMA::$A -2) ((MAXIMA::MPLUS MAXIMA::SIMP) ((MAXIMA::MTIMES MAXIMA::SIMP) -1 MAXIMA::$A MAXIMA::$X ((MAXIMA::%COS MAXIMA::SIMP) ((MAXIMA::MTIMES MAXIMA::SIMP) MAXIMA::$A MAXIMA::$X))) ((MAXIMA::%SIN MAXIMA::SIMP) ((MAXIMA::MTIMES MAXIMA::SIMP) MAXIMA::$A MAXIMA::$X))))
 

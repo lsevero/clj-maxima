@@ -1,4 +1,4 @@
-(defproject clj-maxima "0.1.0-SNAPSHOT"
+(defproject org.clojars.lsevero/clj-maxima "0.1.0-SNAPSHOT"
   :description "Maxima as a clojure library"
   :url "https://github.com/lsevero/clj-maxima"
   :license {:name "GPL-2.0"
