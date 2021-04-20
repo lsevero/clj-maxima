@@ -62,6 +62,11 @@
       (cl/cl-load +maxima-defsystem+)
       (cl/with-cl `(mk:add-registry-location ~(str +maxima-folder+)))
       (cl/with-cl '(funcall (intern (symbol-name :operate-on-system) :mk) "maxima" :load :verbose nil))
+      (let [current-package (-> '*package* ^org.armedbear.lisp.Package (cl/getvar) .getName keyword)]
+        (cl/with-cl
+          '(in-package :maxima)
+          `(setf *maxima-tempdir* ~(System/getProperty "java.io.tmpdir"))
+          `(in-package ~current-package)))
       (log/info "Maxima imported to the Common Lisp environment successfully.")
       :ok
       ))

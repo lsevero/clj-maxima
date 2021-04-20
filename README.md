@@ -53,6 +53,23 @@ To install gnuplot (on Debian based distributions):
 sudo apt install gnuplot-x11
 ```
 
+To plot use:
+```clojure
+(require '[clj-maxima :as m])
+(require '[abclj.core :as cl])
+
+(m/meval "plot2d(x^2,[x,-5,5])") 
+
+;or call the Maxima lisp functions directly using the lisp syntax through abcl java api
+(cl/funcall (cl/getfunction 'maxima/$plot2d)
+            (cl/cl-cons '[[maxima/mexpt maxima/simp nil] maxima/$x 2 nil])
+            (cl/cl-cons '[[maxima/mlist maxima/simp nil] maxima/$x -5 5 nil]))
+
+;or even with the common lisp interpreter
+(cl/with-cl '(in-package :maxima)
+            '($PLOT2D '((MEXPT SIMP) $X 2) '((MLIST SIMP) $X -5 5)))
+```
+
 ## Important Links
 
 * [Call Maxima from Common Lisp](https://niitsuma.hatenadiary.org/entry/20080328/1226706399)
