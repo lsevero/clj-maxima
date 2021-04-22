@@ -68,6 +68,7 @@
           `(setf *maxima-tempdir* ~(System/getProperty "java.io.tmpdir"))
           `(in-package ~current-package)))
       (log/info "Maxima imported to the Common Lisp environment successfully.")
+      (cl/cl-load-resource "clj-maxima-utils.lisp")
       :ok
       ))
 
@@ -77,19 +78,21 @@
   [^String s]
   (cl/cl-evaluate (str "#$ " s " $")))
 
-(let [cl-displa (cl/getfunction 'maxima/displa)]
+(let [cl-displa (cl/getfunction 'clj-maxima-utils/displa-to-string)]
   (defn displa
     "Receives a list of maxima lisp symbols, pretty print the argument in human readable format.
     Similar to the results you get on a Maxima REPL.
     
-    Returns cl-nil.
+    Returns the pretty printed string
     "
     [coll]
-    (cl/funcall cl-displa coll)))
+    (cl/cl->clj (cl/funcall cl-displa coll))))
 
 (def mevald
-  "Eval a maxima string, then convert it to human readable format." 
-  (comp displa meval))
+  "Eval a maxima string, then convert it to human readable format and print it.
+  Useful on the REPL.
+  " 
+  (comp print displa meval))
 
 (def meval->clj
   "Eval a maxima string, then convert the result to a clojure/java class"

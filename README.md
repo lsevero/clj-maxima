@@ -35,7 +35,7 @@ To use maxima syntax use the `meval` function.
 
 ;eval and displa (pretty print)
 (m/mevald "integrate(x*sin(a*x),x)")
-; ==> prints 
+; ==> returns 
 ;sin(a x) - a x cos(a x)
 ;-----------------------
 ;           2
@@ -76,12 +76,14 @@ To plot use:
 * [Introduction to Maxima](https://maxima.sourceforge.io/docs/manual/intromax.html)
 * [Lisp and Maxima](https://maxima.sourceforge.io/docs/manual/maxima_165.html#Lisp-and-Maxima)
 * [ABCLJ Readme and tests](https://github.com/lsevero/abclj)
+* [Maxima download page (binaries and source code)](https://maxima.sourceforge.io/download.html)
 
 ## TODOS
 
 * mfuncall
 * maxima contrib packages
 * tests
+* displa to string
 
 ## License
 
