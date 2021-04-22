@@ -82,8 +82,6 @@ To plot use:
 
 * mfuncall
 * maxima contrib packages
-* tests
-* displa to string
 
 ## License
 

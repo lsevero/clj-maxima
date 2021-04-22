@@ -74,9 +74,15 @@
 
 (defn meval
   "Eval a maxima string.
-  Returns a list of Maxima lisp symbols"
-  [^String s]
-  (cl/cl-evaluate (str "#$ " s " $")))
+  Applies the ABCLJ Clojurifiable protocol, so any primitive lisp data (Common lisp ints, doubles, floats, strings) will be converted to its java counterpart,
+  notice that the Clojurifiable protocol does not convert cl-cons natively.
+  To disable the automatic cl->clj convertion set the :cl param to true.
+  "
+  [^String s & {:keys [cl] :or {cl false}}]
+  (let [f (if cl identity cl/cl->clj)]
+    (-> (str "#$ " s " $")
+        cl/cl-evaluate
+        f)))
 
 (let [cl-displa (cl/getfunction 'clj-maxima-utils/displa-to-string)]
   (defn displa
@@ -89,14 +95,15 @@
     (cl/cl->clj (cl/funcall cl-displa coll))))
 
 (def mevald
+  "Eval a maxima string, then convert it to human readable format and return it.
+  " 
+  (comp displa meval))
+
+(def mevalp
   "Eval a maxima string, then convert it to human readable format and print it.
   Useful on the REPL.
   " 
   (comp print displa meval))
-
-(def meval->clj
-  "Eval a maxima string, then convert the result to a clojure/java class"
-  (comp cl/cl->clj meval))
 
 (defmacro mset
   "Create variables in the maxima environment. Equivalent to `msetq` maxima function."
