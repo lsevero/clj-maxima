@@ -17,8 +17,8 @@
   (Paths/get (System/getProperty "java.io.tmpdir")
              (into-array String ["maxima-abcl"])))
 
-(def +maxima-defsystem+
-  (str +maxima-folder+ "/defsystem.lisp"))
+(def ^:const +maxima-defsystem+
+  (str +maxima-folder+ (System/getProperty "file.separator") "defsystem.lisp"))
 
 (defn- unzip
   "Unzips zip archive stream and write all contents to dir"
@@ -54,10 +54,10 @@
                                                 (log/debug "Maxima was extracted successfully"))
         (and (folder-exist? +maxima-folder+)
              (folder-empty? +maxima-folder+)) (do
-                                                      (log/debug "Maxima folder is empty, deleting it and extracting...")
-                                                      (-> +maxima-folder+ str io/file io/delete-file)
-                                                      (unzip +maxima-input-stream+ +maxima-folder+)
-                                                      (log/debug "Maxima was extracted successfully"))
+                                                (log/debug "Maxima folder is empty, deleting it and extracting...")
+                                                (-> +maxima-folder+ str io/file io/delete-file)
+                                                (unzip +maxima-input-stream+ +maxima-folder+)
+                                                (log/debug "Maxima was extracted successfully"))
         :else (log/debug "Maxima is already extracted, ready to use."))
       (cl/cl-load +maxima-defsystem+)
       (cl/with-cl `(mk:add-registry-location ~(str +maxima-folder+)))
@@ -88,7 +88,7 @@
   (defn displa
     "Receives a list of maxima lisp symbols, pretty print the argument in human readable format.
     Similar to the results you get on a Maxima REPL.
-    
+
     Returns the pretty printed string
     "
     [coll]
