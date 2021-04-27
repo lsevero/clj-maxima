@@ -15,6 +15,8 @@ You don't even need Maxima installed in your machine to use this library, this l
 Maxima is an outstanding project. Is the oldest computer program that I know that is used until nowadays (Macsyma dates from the 60's!!).
 With this library I hope to improve the clojure current state for scientific computation, and improve Maxima and Common Lisp reach.
 
+Currently this library is using Maxima version 5.44.0 and ABCL version 1.8.0.
+
 ## Usage
 
 Maxima and this library relies 100% on Common Lisp interop, which means that most of the time you will be working with Common Lisp data.
@@ -80,8 +82,10 @@ To plot use:
 
 ## TODOS
 
-* mfuncall
-* maxima contrib packages
+* mfuncall (call functions defined on maxima on cl/clj side).
+* maxima contrib packages.
+* Add a helper function to build Maxima lisp lists with clojure-ish syntax.
+* Add helper function to the most used functions, like `$integrate`, `$diff` and others (they can be accessed by abclj.core/getfunction).
 
 ## License
 
