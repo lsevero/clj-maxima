@@ -1,10 +1,10 @@
-(defproject org.clojars.lsevero/clj-maxima "0.1.0"
+(defproject org.clojars.lsevero/clj-maxima "0.1.1-SNAPSHOT"
   :description "Maxima as a clojure library"
   :url "https://github.com/lsevero/clj-maxima"
   :license {:name "GPL-2.0"
             }
   :dependencies [[org.clojure/clojure "1.10.0"]
-                 [abclj "0.1.5"]
+                 [abclj "0.1.6"]
                  [org.clojure/tools.logging "0.6.0"]
                  ]
   :profiles {:dev {:plugins [[cider/cider-nrepl "0.24.0"]]
