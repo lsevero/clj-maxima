@@ -1,6 +1,8 @@
 # clj-maxima
 
-Maxima as a Clojure library, using [ABCLJ](https://github.com/lsevero/abclj).
+[Maxima](https://maxima.sourceforge.io/) as a Clojure library, using [ABCLJ](https://github.com/lsevero/abclj).
+
+[![Clojars Project](https://img.shields.io/clojars/v/org.clojars.lsevero/clj-maxima.svg)](https://clojars.org/org.clojars.lsevero/clj-maxima)
 
 ## But... how?
 
