@@ -2,6 +2,8 @@
   (:require [clojure.java.io :as io]
             [clojure.tools.logging :as log]
             [clojure.string :as str]
+            [clojure.walk :refer [postwalk postwalk-demo]]
+            [clojure.test :refer [is]]
             [abclj.core :as cl]
             )
   (:import [java.nio.file Files FileSystem FileSystems Paths Path LinkOption]
@@ -88,11 +90,14 @@
   (defn displa
     "Receives a list of maxima lisp symbols, pretty print the argument in human readable format.
     Similar to the results you get on a Maxima REPL.
+    If it does no receive a lisp list will return the argument.
 
     Returns the pretty printed string
     "
     [coll]
-    (cl/cl->clj (cl/funcall cl-displa coll))))
+    (if (cl/cl-obj? coll)
+      (cl/cl->clj (cl/funcall cl-displa coll))
+      coll)))
 
 (def mevald
   "Eval a maxima string, then convert it to human readable format and return it.
@@ -103,7 +108,11 @@
   "Eval a maxima string, then convert it to human readable format and print it.
   Useful on the REPL.
   " 
-  (comp print displa meval))
+  (comp println displa meval))
+
+(def displap
+  "Pretty print a maxima expression and print"
+  (comp println displa))
 
 (defmacro mset
   "Create variables in the maxima environment. Equivalent to `msetq` maxima function."
@@ -117,3 +126,121 @@
       value)
     (throw (ex-info "Maxima symbols need to start with a '$'" {:sym sym}))))
 
+(defn ->maxima
+  "If it is a symbol adds the namespace 'maxima' to a clojure symbol.
+  If it is a sequential recursively adds the namespace 'maxima' to all symbols.
+  if it is neither will return the argument
+  useful to build cl-cons"
+  [s]
+  (cond (symbol? s) (symbol "maxima" (name s))
+        (sequential? s) (postwalk #(if (symbol? %)
+                                     (->maxima %)
+                                     %)
+                                  s)
+        :else s))
+
+(defn mlist
+  "Create maxima lists using variadic arguments, use (apply mlist [...]) to convert sequentials."
+  [& args]
+  (let [ans [['mlist nil]]]
+    (cl/cl-cons (->maxima (conj (into ans args) nil)))))
+
+(def ^:const +mexpr-mappings+
+  {'+ 'mplus
+   '/ 'rat
+   '* 'mtimes
+   '** 'mexpt
+   '. 'mnctimes
+   '= 'mequal
+   (symbol "#") 'mnotequal
+   (symbol "^") 'mexpt
+   (symbol "^^") 'mncexpt
+   ; We skip some steps when building maxima expressions directly through CL conses.
+   ; Some native functions will not be applied and will be treated as variables, we need to evaluate them to their '''real''' value.
+   '$log '%log
+   '$sin '%sin
+   '$cos '%cos
+   '$tan '%tan
+   '$cot '%cot
+   '$sec '%sec 
+   '$csc '%csc
+   '$sinh '%sinh 
+   '$cosh '%cosh 
+   '$tanh '%tanh
+   '$coth '%coth 
+   '$sech '%sech 
+   '$csch '%csch
+   '$asin '%asin 
+   '$acos '%acos
+   '$atan '%atan
+   '$acot '%acot
+   '$asec '%asec
+   '$acsc '%acsc
+   '$asinh '%asinh 
+   '$acosh '%acosh 
+   '$atanh '%atanh
+   '$acoth '%acoth 
+   '$asech '%asech
+   '$acsch '%acsch
+   '$round '%round 
+   '$truncate '%truncate
+   '$plog '%plog
+   '$signum '%signum 
+   '$gamma '%gamma
+   })
+
+(defn mexpr
+  "Create maxima expressions using clojure primitives
+  A aditional map of mappings can be passed which will be merged with +mexpr-mappings+.
+  Notice that there is no '-' operator in the lisp syntax, the '-' operator on maxima syntax is always evaluated to ((mtimes) -1 $x)
+  "
+  ([coll mappings]
+   (-> (postwalk (fn [node]
+                         (cond (symbol? node) (if-let [ans (get (merge +mexpr-mappings+ mappings) node)]
+                                                ans
+                                                node)
+                               (sequential? node) (let [[head & tail] node
+                                                        ans [[head nil]]]
+                                                    (conj (into ans tail) nil))
+                               :else node
+                               )) coll)
+       ->maxima
+       cl/cl-cons))
+  ([coll]
+   (mexpr coll {})))
+
+(defn funcall 
+  "A shortcut to (cl/funcall (cl/getfunction 'maxima/f) ... )
+  Will automatically add the namespace 'maxima' to the symbol and automatically convert all arguments to the common lisp correspondent class, if it is a clojure sequential, will apply mexpr.
+  If the function does do exists will raise an exception.
+  "
+  [s & args]
+  (letfn [(dispatch [x]
+            (if (sequential? x)
+              (mexpr x)
+              (-> x ->maxima cl/clj->cl)))]
+   (let [f (try (-> s ->maxima cl/getfunction)
+               (catch Exception e
+                 (throw (ex-info (str "The function " s " does not exist on package :MAXIMA" {:ex e
+                                                                                              :function s})))))]
+    (cl/cl->clj (apply cl/funcall f (map dispatch args))))))
+
+(comment (displa (mlist 1 2 3))
+         (prn (meval "a ^^ b"))
+         (postwalk-demo '[/ [* 1 2 3] 99])
+         (prn (meval " sin (x/(x^2 + x)) = exp ((log(x) + 1)^2 - log(x)^2)"))
+         (prn (meval "a#b"))
+         (cl/funcall)
+         (prn (cl/funcall (cl/getfunction 'maxima/$diff)
+                          (mexpr '[/ [* 1 2 3] 99])
+                          (cl/cl-symbol 'maxima/$x)))
+         (print (displa (funcall '$diff '[** $x 3] '$x)))
+         (funcall '$plot2d '[** $x 3] (mlist '$x -10 10))
+         (displap (funcall '$solve '[= 0 [+ 1 [** $%e [* $x $%i]]]] x))
+         (displap (funcall '$solve '[= 0 [* [+ [$f $x] -1] [$asin [$cos [* 3 $x]]]]] '$x))
+         (prn (mexpr '[* [+ [$f $x] -1] [$asin [$cos [* 3 $x]]]]))
+         (prn (meval "asin (cos (3*x))*(f(x) - 1)"))
+         (displap (meval "solve(asin (cos (3*x))*(f(x) - 1)=0,x)"))
+         (mevalp "%e**(%i*%pi)")
+         
+         )
