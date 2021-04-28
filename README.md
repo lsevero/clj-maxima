@@ -67,7 +67,7 @@ To create Maxima lists use `mlist`:
 
 This library does not provides wrapper functions to all maxima functions (really, it is a lot of them to maintain, see [Maxima Function and Variable Index](https://maxima.sourceforge.io/docs/manual/maxima_363.html#Function-and-Variable-Index)
 ), but it provides a unified way to access and call all of maxima functions using the `clj-maxima.core/funcall` function.
-It is important to notice that common maxima functions can be accessed in lisp with a `$` prefix on the symbol, so the maxima function `diff` is accessed by the symbol `$diff` in lisp for example (see [Lisp and Maxima](https://maxima.sourceforge.io/docs/manual/maxima_165.html#Lisp-and-Maxima) for more details).
+It is important to notice that common maxima functions can be accessed in lisp with a `$` prefix on the symbol, so the maxima function `diff` is accessed by the symbol `$diff` in lisp for example (see [Lisp and Maxima](https://maxima.sourceforge.io/docs/manual/maxima_165.html#Lisp-and-Maxima) for more details). This is also true for constants, for example `%pi` is accessed in lisp with `$%pi`.
 To maintain consistency with the Maxima documentation in this library we keep this convention and never auto prefix any symbol with a `$`.
 When using `clj-maxima.core/funcall` we automatically put the maxima namespace on all symbols and convert them to their common lisp correspondent classes, if a clojure sequential is passed as a argument `mexpr` will be applied.
 

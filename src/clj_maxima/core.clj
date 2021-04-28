@@ -108,11 +108,11 @@
   "Eval a maxima string, then convert it to human readable format and print it.
   Useful on the REPL.
   " 
-  (comp println displa meval))
+  (comp print displa meval))
 
 (def displap
   "Pretty print a maxima expression and print"
-  (comp println displa))
+  (comp print displa))
 
 (defmacro mset
   "Create variables in the maxima environment. Equivalent to `msetq` maxima function."
