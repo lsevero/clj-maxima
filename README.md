@@ -25,6 +25,7 @@ Maxima and this library relies 100% on Common Lisp interop, which means that mos
 Maxima does not directly eval code in Maxima syntax, it always convert to its lisp list syntax, for example the maxima expression `x*sin(a*x)` is evaluated to `((MAXIMA::MTIMES MAXIMA::SIMP) MAXIMA::$X ((MAXIMA::%SIN MAXIMA::SIMP) ((MAXIMA::MTIMES MAXIMA::SIMP) MAXIMA::$A MAXIMA::$X)))` in lisp.
 It is perfectly fine to use this lisp syntax in this library along with Common Lisp interop, but things can become ugly pretty quickly.
 I recommend to use Maxima code with Maxima syntax, and just use the Lisp syntax when needed.
+If you need to build maxima expressions programmatically try using `mexpr`.
 
 
 To use maxima syntax use the `meval` function.
@@ -46,6 +47,48 @@ To use maxima syntax use the `meval` function.
 ;          a
 ```
 
+It is possible to create maxima expressions using clojure primitives using `mexpr`:
+```clojure
+(mexpr '[= [+ [** $%e [* $%pi $%i]] 1] 0])
+;=> returns
+; #abclj/cl-cons ((MAXIMA::MEQUAL) ((MAXIMA::MPLUS) ((MAXIMA::MEXPT) MAXIMA::$%E ((MAXIMA::MTIMES) MAXIMA::$%PI MAXIMA::$%I)) 1) 0)
+
+(displap (mexpr '[= [+ [** $%e [* $%pi $%i]] 1] 0]))
+;=>prints
+;  %pi %i
+;%e       + 1 = 0
+```
+
+To create Maxima lists use `mlist`:
+```clojure
+(displap (mlist '$x -5 5))
+;=> [x, - 5, 5]
+```
+
+This library does not provides wrapper functions to all maxima functions (really, it is a lot of them to maintain, see [Maxima Function and Variable Index](https://maxima.sourceforge.io/docs/manual/maxima_363.html#Function-and-Variable-Index)
+), but it provides a unified way to access and call all of maxima functions using the `clj-maxima.core/funcall` function.
+It is important to notice that common maxima functions can be accessed in lisp with a `$` prefix on the symbol, so the maxima function `diff` is accessed by the symbol `$diff` in lisp for example (see [Lisp and Maxima](https://maxima.sourceforge.io/docs/manual/maxima_165.html#Lisp-and-Maxima) for more details).
+To maintain consistency with the Maxima documentation in this library we keep this convention and never auto prefix any symbol with a `$`.
+When using `clj-maxima.core/funcall` we automatically put the maxima namespace on all symbols and convert them to their common lisp correspondent classes, if a clojure sequential is passed as a argument `mexpr` will be applied.
+
+`funcall` examples:
+```clojure
+(require '[clj-maxima.core :refer :all])
+
+(funcall '$diff '[** $x 3] '$x)
+;is equivalent to
+(meval "diff(x**3,x)")
+
+(displap (funcall '$solve '[= 0 [* [+ [$f $x] -1] [$asin [$cos [* 3 $x]]]]] '$x))
+;=> prints
+;     %pi
+;[x = ---, f(x) = 1]
+;      6
+; is equivalent to
+(mevalp "solve(asin (cos (3*x))*(f(x) - 1)=0,x)")
+```
+
+
 ## Plotting
 
 Plotting is fully supported, however it **needs gnuplot installed in your system**.
@@ -64,6 +107,9 @@ To plot use:
 
 (m/meval "plot2d(x^2,[x,-5,5])") 
 
+;or use funcall 
+(m/funcall '$plot2d '[** $x 2] (mlist '$x -5 5))
+
 ;or call the Maxima lisp functions directly using the lisp syntax through abcl java api
 (cl/funcall (cl/getfunction 'maxima/$plot2d)
             (cl/cl-cons '[[maxima/mexpt maxima/simp nil] maxima/$x 2 nil])
@@ -81,13 +127,12 @@ To plot use:
 * [Lisp and Maxima](https://maxima.sourceforge.io/docs/manual/maxima_165.html#Lisp-and-Maxima)
 * [ABCLJ Readme and tests](https://github.com/lsevero/abclj)
 * [Maxima download page (binaries and source code)](https://maxima.sourceforge.io/download.html)
+* [Maxima Function and Variable Index](https://maxima.sourceforge.io/docs/manual/maxima_363.html#Function-and-Variable-Index)
 
 ## TODOS
 
 * mfuncall (call functions defined on maxima on cl/clj side).
 * maxima contrib packages.
-* Add a helper function to build Maxima lisp lists with clojure-ish syntax.
-* Add helper function to the most used functions, like `$integrate`, `$diff` and others (they can be accessed by abclj.core/getfunction).
 
 ## License
 
