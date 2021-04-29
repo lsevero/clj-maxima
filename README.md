@@ -120,6 +120,14 @@ To plot use:
             '($PLOT2D '((MEXPT SIMP) $X 2) '((MLIST SIMP) $X -5 5)))
 ```
 
+## Packaging
+
+clj-maxima is not a conventional clojure package, is half a clojure package and half a common lisp one.
+The common lisp part (maxima itself) is bundled in this library as a zipped resource.
+When clj-maxima is `require`d it will unzip the common lisp portion to `(System/getProperty "java.io.tmpdir")` and then import it to the common lisp environment.
+This is necessary because of maxima package system. If it is necessary to change the location of maxima change this property on clojure boot.
+
+
 ## Important Links
 
 * [Call Maxima from Common Lisp](https://niitsuma.hatenadiary.org/entry/20080328/1226706399)
