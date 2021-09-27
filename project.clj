@@ -9,5 +9,8 @@
                  ]
   :profiles {:dev {:plugins [[cider/cider-nrepl "0.24.0"]]
                    :global-vars {*warn-on-reflection* true}
-                   :repl-options {:init-ns clj-maxima.core}}}
+                   :repl-options {:init-ns clj-maxima.core}
+                   :java-source-paths ["java-examples"]
+                   :source-paths ["src" "examples"]
+                   :main main}}
   :repl-options {:init-ns clj-maxima.core})
