@@ -31,7 +31,7 @@ If you need to build maxima expressions programmatically try using `mexpr`.
 To use maxima syntax use the `meval` function.
 
 ```clojure
-(require '[clj-maxima :as m])
+(require '[clj-maxima.core :as m])
 (require '[abclj.core :as cl])
 
 (m/meval "integrate(x*sin(a*x),x)")
@@ -49,11 +49,11 @@ To use maxima syntax use the `meval` function.
 
 It is possible to create maxima expressions using clojure primitives using `mexpr`:
 ```clojure
-(mexpr '[= [+ [** $%e [* $%pi $%i]] 1] 0])
+(m/mexpr '[= [+ [** $%e [* $%pi $%i]] 1] 0])
 ;=> returns
 ; #abclj/cl-cons ((MAXIMA::MEQUAL) ((MAXIMA::MPLUS) ((MAXIMA::MEXPT) MAXIMA::$%E ((MAXIMA::MTIMES) MAXIMA::$%PI MAXIMA::$%I)) 1) 0)
 
-(displap (mexpr '[= [+ [** $%e [* $%pi $%i]] 1] 0]))
+(m/displap (m/mexpr '[= [+ [** $%e [* $%pi $%i]] 1] 0]))
 ;=>prints
 ;  %pi %i
 ;%e       + 1 = 0
@@ -61,7 +61,7 @@ It is possible to create maxima expressions using clojure primitives using `mexp
 
 To create Maxima lists use `mlist`:
 ```clojure
-(displap (mlist '$x -5 5))
+(m/displap (m/mlist '$x -5 5))
 ;=> [x, - 5, 5]
 ```
 
@@ -102,13 +102,13 @@ sudo apt install gnuplot-x11
 
 To plot use:
 ```clojure
-(require '[clj-maxima :as m])
+(require '[clj-maxima.core :as m])
 (require '[abclj.core :as cl])
 
 (m/meval "plot2d(x^2,[x,-5,5])") 
 
 ;or use funcall 
-(m/funcall '$plot2d '[** $x 2] (mlist '$x -5 5))
+(m/funcall '$plot2d '[** $x 2] (m/mlist '$x -5 5))
 
 ;or call the Maxima lisp functions directly using the lisp syntax through abcl java api
 (cl/funcall (cl/getfunction 'maxima/$plot2d)
