@@ -40,7 +40,7 @@ To use maxima syntax use the `meval` function.
 
 ;eval and pretty print
 (m/mevalp "integrate(x*sin(a*x),x)")
-; ==> prints 
+; ==> prints
 ;sin(a x) - a x cos(a x)
 ;-----------------------
 ;           2
@@ -105,9 +105,9 @@ To plot use:
 (require '[clj-maxima.core :as m])
 (require '[abclj.core :as cl])
 
-(m/meval "plot2d(x^2,[x,-5,5])") 
+(m/meval "plot2d(x^2,[x,-5,5])")
 
-;or use funcall 
+;or use funcall
 (m/funcall '$plot2d '[** $x 2] (m/mlist '$x -5 5))
 
 ;or call the Maxima lisp functions directly using the lisp syntax through abcl java api
